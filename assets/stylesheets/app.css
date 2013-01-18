@@ -1,0 +1,11 @@
+.todo{
+  border-bottom: 1px dashed #ccc;
+  float: left;
+  width: 100%;
+  padding: 10px;
+}
+ul li{
+  margin: 5px 0px;
+}
+
+
