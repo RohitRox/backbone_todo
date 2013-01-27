@@ -20,4 +20,7 @@ ul li{
   background: #39f;
   color: #fff;
 }
+#status_filter a.active{
+  background: #1e728c;
+}
 

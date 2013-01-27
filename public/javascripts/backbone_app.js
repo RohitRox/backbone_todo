@@ -10,7 +10,7 @@ $(document).ready(function(){
     defaults: function() {
       return {
         title: "untitled",
-        done: false,
+        status: false,
         priority: 'medium',
         category: 'untitled'
       };
@@ -32,7 +32,7 @@ $(document).ready(function(){
     url: "/tasks",
 
     done: function() {
-      return this.filter(function(todo){ return todo.get('done'); });
+      return this.filter(function(todo){ return todo.get('status')==="Completed"; });
     },
 
     remaining: function() {
@@ -56,7 +56,7 @@ $(document).ready(function(){
    template: _.template($('#todo').html()),
    render: function() {
       this.$el.html(this.template(this.model.toJSON()));
-      this.$el.toggleClass('done', this.model.get('done'));
+      this.$el.toggleClass('done', this.model.get('status')==="Completed");
       return this;
     }
 
@@ -64,13 +64,16 @@ $(document).ready(function(){
 
   var TodoListView =  Backbone.View.extend({
     el: $('#todo_app_main'),
+    filterCat: "all",
+    filterStatus: "all",
     initialize: function(coll){
       this.collection = coll;
-      this.on("change:filterCat", this.renderByCat, this);
+      this.on("change:renderFilter", this.renderByFilter, this);
       this.collection.on("reset", this.render, this);
     },
     events: {
-      "click #categories a": "filterByCat"
+      "click #categories a": "filterByCat",
+      "click #status_filter a": "filterByStatus"
     },
     render: function(){
       $(this.el).find('.todo').remove();
@@ -102,26 +105,53 @@ $(document).ready(function(){
       target.parents('.cats').find('a').removeClass('active');
       target.addClass('active');
       this.filterCat = target.data('cat');
-      this.trigger("change:filterCat");
+      this.trigger("change:renderFilter");
     },
-    renderByCat: function(){
+    filterByStatus: function(e){
+      e.preventDefault();
+      var target = $(e.currentTarget);
+      target.parents('#status_filter').find('a').removeClass('active');
+      target.addClass('active');
+      this.filterStatus = target.data('status');
+      this.trigger("change:renderFilter");
+    },
+    renderByFilter: function(){
       var filterCat = this.filterCat;
+      var filterStatus = this.filterStatus;
       this.collection.fetch({ silent: true });
-      var filtered = _.filter(this.collection.models, function (item) {
-        return item.get("category") === filterCat;
-      });
-      this.collection.reset(filtered);
-      todoRouter.navigate("filter/" + filterCat);
+      if( filterCat == "all" && filterStatus == "all" ){
+        this.render();
+      }
+      else{
+        var filtered = _.filter(this.collection.models, function (item) {
+           if ( filterCat == "all")
+            return item.get('status') === filterStatus;
+          else if ( filterStatus == "all")
+            return item.get("category") === filterCat;
+          else
+            return item.get("category") === filterCat && item.get('status') === filterStatus;
+        });
+        console.log(filtered);
+        this.collection.reset(filtered);
+      }
+
+      todoRouter.navigate("filter/" + filterCat+"/"+filterStatus);
     }
   });
 
   var TodosRouter = Backbone.Router.extend({
       routes: {
-          "filter/:type": "urlFilter"
+        "filter/:type": "urlFilter",
+        "filter/:type/:status": "urlFilterStatus"
       },
       urlFilter: function (type) {
-          todos_view.filterCat = type;
-          todos_view.trigger("change:filterCat");
+        todos_view.filterCat = type;
+        todos_view.trigger("change:renderFilter");
+      },
+      urlFilterStatus: function(type, status){
+        todos_view.filterCat = type;
+        todos_view.filterStatus = status;
+        todos_view.trigger("change:renderFilter");
       }
   });
 

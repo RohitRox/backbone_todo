@@ -2,7 +2,7 @@
   <h4>{{ title }}</h4>
   <div class="date left">
   {{ created_at }}
-  <span>Status: {{ done ? "Completed" : "Not-Completed"}}</span>
+  <span>Status: {{ status }}</span>
   <span>Priority: {{ priority }}</span>
   </div>
   <div class="actions right">
@@ -33,10 +33,10 @@
               <a class="button expand postfix">Search</a>
             </div>
           </div>
-      <ul class="button-group radius">
-        <li><a href="#" class="button radius">All</a></li>
-        <li><a href="#" class="button radius">Completed</a></li>
-        <li><a href="#" class="button radius">Uncompleted</a></li>
+      <ul class="button-group radius" id="status_filter">
+        <li><a href="#" class="button radius active" data-status="all">All</a></li>
+        <li><a href="#" class="button radius" data-status="Completed">Completed</a></li>
+        <li><a href="#" class="button radius" data-status="Not-Completed">Uncompleted</a></li>
       </ul>
       <div class="tasks" id="todo_list">
 
@@ -48,6 +48,9 @@
       </p>
       <ul id="categories" class="cats">
         <li><h4>Categories</h4></li>
+        <li>
+          <a href="" data-cat="all" class="">All</a>
+        </li>
       </ul>
     </div>
   </div>

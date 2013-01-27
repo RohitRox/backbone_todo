@@ -8,7 +8,7 @@ class App < Sinatra::Base
   TASKS = [{
       id: 1,
       title: "task1",
-      done: false,
+      status: "Completed",
       priority: 'medium',
       category: 'personal',
       created_at: "12:00 PM, Feb 23, 2012"
@@ -16,7 +16,7 @@ class App < Sinatra::Base
       {
       id: 2,
       title: "task2",
-      done: true,
+      status: "Not-Completed",
       priority: 'high',
       category: 'untitled',
       created_at: "12:00 PM, Feb 23, 2012"
@@ -24,7 +24,7 @@ class App < Sinatra::Base
       {
       id: 3,
       title: "task3",
-      done: false,
+      status: "Completed",
       priority: 'medium',
       category: 'office',
       created_at: "12:00 PM, Feb 23, 2012"
@@ -32,7 +32,7 @@ class App < Sinatra::Base
       {
       id: 4,
       title: "mt atsj",
-      done: false,
+      status: "Not-Completed",
       priority: 'medium',
       category: 'office',
       created_at: "12:00 PM, Feb 23, 2012"}
