@@ -10,4 +10,14 @@ ul li{
 .done{
   background: #dfe;
 }
+.cats { margin-bottom: 0px; }
+.cats li { list-style: none; margin-bottom: 12px; }
+.cats a{
+  padding: 4px 10px;
+  display: block;
+}
+.cats a.active{
+  background: #39f;
+  color: #fff;
+}
 
