@@ -1,4 +1,7 @@
 $(document).ready(function(){
+  _.templateSettings = {
+    interpolate : /\{\{(.+?)\}\}/g
+  };
   // Models
   var Todo = Backbone.Model.extend({
 
@@ -10,7 +13,6 @@ $(document).ready(function(){
         category: 'untitled'
       };
     },
-
     initialize: function() {
       if (!this.get("title")) {
         this.set({"title": this.defaults().title});
@@ -25,7 +27,7 @@ $(document).ready(function(){
 
     model: Todo,
 
-    localStorage: new Backbone.LocalStorage("todos-backbone"),
+    url: "/tasks",
 
     done: function() {
       return this.filter(function(todo){ return todo.get('done'); });
@@ -37,7 +39,6 @@ $(document).ready(function(){
 
   });
 
-  var Todos = new TodoList();
 
   // Views
 
@@ -46,7 +47,6 @@ $(document).ready(function(){
    tagName:  "div",
    className: 'todo',
    template: _.template($('#todo').html()),
-
    render: function() {
       this.$el.html(this.template(this.model.toJSON()));
       this.$el.toggleClass('done', this.model.get('done'));
@@ -56,19 +56,38 @@ $(document).ready(function(){
 
   });
 
-  var AppView = Backbone.View.extend({
-
-    el: $("#todo_list"),
-    initialize: function() {
-      alert(';');
-      Todos.fetch();
+  var TodoListView =  Backbone.View.extend({
+    el: $('#todo_list'),
+    initialize: function(coll){
+      this.collection = coll;
     },
     render: function(){
-      alert('hi');
+      var that = this;
+      _.each(this.collection.models, function(item){
+        that.renderTodo(item);
+      },this);
+    },
+    renderTodo: function(item){
+      var todo_view = new TodoView({
+      model: item
+      });
+      $(this.el).append(todo_view.render().el);
+    }
+  });
+
+  var AppView = Backbone.View.extend({
+    initialize: function() {
+      var todos = new TodoList();
+      todos.fetch({ success: function(tasks){
+        var todos_view = new TodoListView(tasks);
+        todos_view.render();
+      }
+      });
+
     }
 
   });
 
   var App = new AppView();
-  alert('ok');
+
 });
