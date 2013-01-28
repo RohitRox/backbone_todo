@@ -44,7 +44,7 @@
     </div>
     <div class="four columns">
       <p>
-        <a href="" class="button">New Todo</a>
+        <a href="#" class="button" id="new_todo">New Todo</a>
       </p>
       <ul id="categories" class="cats">
         <li><h4>Categories</h4></li>
@@ -55,5 +55,5 @@
     </div>
   </div>
 <script type="text/javascript">
-var boot_todos = <%=@tasks%>;
+var boot_todos = <%=@tasks.to_json%>;
 </script>

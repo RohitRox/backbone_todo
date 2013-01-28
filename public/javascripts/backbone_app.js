@@ -6,19 +6,29 @@ $(document).ready(function(){
 
   // Model
   var Todo = Backbone.Model.extend({
-
+    url: '/tasks',
     defaults: function() {
       return {
         title: "untitled",
-        status: false,
+        status: "Not-Completed",
         priority: 'medium',
-        category: 'untitled'
+        category: 'untitled',
+        created_at: this.utc_date()
       };
+    },
+    schema: {
+        title:      "Text",
+        priority:   { type: 'Select', options: ['low', 'medium', 'urgent'] },
+        category:   { type: 'Select', options: ['personal', 'office', 'untitled'] }
     },
     initialize: function() {
       if (!this.get("title")) {
         this.set({"title": this.defaults().title});
       }
+    },
+    utc_date: function(){
+      var now = new Date();
+      return now.toUTCString();
     }
 
   });
@@ -62,6 +72,29 @@ $(document).ready(function(){
 
   });
 
+  var TodoForm = Backbone.View.extend({
+    render: function(mod){
+      var form = new Backbone.Form({
+        model: mod
+      }).render();
+      this.form = form;
+      $(this.el).html(form.el);
+      $(this.el).append('<input type="button" id="new_todo_submit" value="Save" class="small button" />');
+      $.facebox($(this.el));
+    },
+    events: {
+      "click #new_todo_submit":    "persist"
+    },
+    persist: function(){
+      this.form.commit();
+      todos_view.collection.add(this.form.model);
+      console.log(this.form.model);
+      this.form.model.save();
+      $.facebox.close();
+
+    }
+  });
+
   var TodoListView =  Backbone.View.extend({
     el: $('#todo_app_main'),
     filterCat: "all",
@@ -70,10 +103,20 @@ $(document).ready(function(){
       this.collection = coll;
       this.on("change:renderFilter", this.renderByFilter, this);
       this.collection.on("reset", this.render, this);
+      this.collection.on("add", this.renderTodo, this);
     },
     events: {
-      "click #categories a": "filterByCat",
-      "click #status_filter a": "filterByStatus"
+      "click #categories a":    "filterByCat",
+      "click #status_filter a": "filterByStatus",
+      "click #new_todo":        "todo_form"
+    },
+    persist: function(){
+      this.form.commit();
+      console.log(this.form.model);
+    },
+    todo_form: function(){
+      var t = new TodoForm();
+      t.render(new Todo());
     },
     render: function(){
       $(this.el).find('.todo').remove();
