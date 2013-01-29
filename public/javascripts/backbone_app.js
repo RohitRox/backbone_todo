@@ -16,11 +16,6 @@ $(document).ready(function(){
         created_at: this.utc_date()
       };
     },
-    schema: {
-        title:      "Text",
-        priority:   { type: 'Select', options: ['low', 'medium', 'urgent'] },
-        category:   { type: 'Select', options: ['personal', 'office', 'untitled'] }
-    },
     initialize: function() {
       if (!this.get("title")) {
         this.set({"title": this.defaults().title});
@@ -74,24 +69,44 @@ $(document).ready(function(){
 
   var TodoForm = Backbone.View.extend({
     render: function(mod){
-      var form = new Backbone.Form({
-        model: mod
-      }).render();
-      this.form = form;
-      $(this.el).html(form.el);
-      $(this.el).append('<input type="button" id="new_todo_submit" value="Save" class="small button" />');
-      $.facebox($(this.el));
+      var form = $('#todo_form').html();
+      this.$el.html(form);
+      var coll = todos_view.collection;
+      var categories = coll.getCategories();
+      var sel = $(this.$el).find('#c41_category').empty();
+      _.each(categories,function(cat){
+        sel.append('<option>'+cat+'</option>');
+      });
+      sel.append('<option>new category</option>');
+
+      $.facebox(this.$el);
     },
     events: {
-      "click #new_todo_submit":    "persist"
+      "click #new_todo_submit":    "persist",
+      "change #c41_category": "change_cat"
+    },
+    change_cat: function(e){
+      var el = e.target;
+      if( el.value == "new category"){
+        $(el).removeAttr('name');
+        $(el).after('<p><br /><input type="text" name="category" /></p>');
+      }else{
+        $(el).attr('name','category');
+        $(el).siblings('p').remove();
+      }
     },
     persist: function(){
-      this.form.commit();
-      todos_view.collection.add(this.form.model);
-      console.log(this.form.model);
-      this.form.model.save();
-      $.facebox.close();
+      var arr = this.$el.find('form').serializeArray();
+      var data = _(arr).reduce(function(acc, field) {
+        acc[field.name] = field.value;
+        return acc;
+      }, {});
 
+      this.model = new Todo(data);
+      todos_view.collection.add(this.model);
+      this.model.save();
+      todos_view.render_categories();
+      $.facebox.close();
     }
   });
 
@@ -108,6 +123,7 @@ $(document).ready(function(){
     events: {
       "click #categories a":    "filterByCat",
       "click #status_filter a": "filterByStatus",
+      "click #show_all_cats": "show_all_cat",
       "click #new_todo":        "todo_form"
     },
     persist: function(){
@@ -117,6 +133,13 @@ $(document).ready(function(){
     todo_form: function(){
       var t = new TodoForm();
       t.render(new Todo());
+    },
+    show_all_cat: function(e){
+      e.preventDefault();
+      var target = $(e.currentTarget);
+      this.$el.find('#categories a').removeClass('active');
+      this.filterCat = "all";
+      this.trigger("change:renderFilter");
     },
     render: function(){
       $(this.el).find('.todo').remove();
@@ -133,7 +156,7 @@ $(document).ready(function(){
       el.append(todo_view.render().el);
     },
     render_categories: function(){
-      var el = $(this.el).find('#categories');
+      var el = $(this.el).find('#categories').empty();
       var me = this;
       var categories = me.collection.getCategories();
       var temp = _.template( $('#cats').html() );
@@ -174,7 +197,6 @@ $(document).ready(function(){
           else
             return item.get("category") === filterCat && item.get('status') === filterStatus;
         });
-        console.log(filtered);
         this.collection.reset(filtered);
       }
 
