@@ -16,6 +16,43 @@
 </li>
 </script>
 
+<script type="text/template" id="todo_form">
+<form class="bbf-form">
+<fieldset>
+<ul>
+<li class="bbf-field">
+  <label for="c41_title">Title</label>
+  <div class="bbf-editor">
+    <input id="c41_title" name="title" type="text">
+  </div>
+</li>
+<li class="bbf-field">
+  <label for="c41_priority">Priority</label>
+  <div class="bbf-editor">
+    <select id="c41_priority" name="priority">
+      <option>low</option>
+      <option>medium</option>
+      <option>urgent</option>
+    </select>
+  </div>
+</li>
+<li class="bbf-field">
+  <label for="c41_category">Category</label>
+  <div class="bbf-editor">
+    <select id="c41_category" name="category">
+      <option>untitled</option>
+      <option>new category</option>
+      <option>personal</option>
+      <option>office</option>
+    </select>
+  </div>
+</li>
+</ul>
+</fieldset>
+<input type="button" id="new_todo_submit" value="Save" class="small button" />
+</form>
+</script>
+
   <div class="row">
     <div class="twelve columns">
       <h2>BACKBONE TODO</h2>
@@ -46,8 +83,8 @@
       <p>
         <a href="#" class="button" id="new_todo">New Todo</a>
       </p>
+      <h4>Categories <a href="#" id="show_all_cats">(show all)</a></h4>
       <ul id="categories" class="cats">
-        <li><h4>Categories</h4></li>
         <li>
           <a href="" data-cat="all" class="">All</a>
         </li>

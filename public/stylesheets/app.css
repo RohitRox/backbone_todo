@@ -4,6 +4,9 @@
   width: 100%;
   padding: 10px;
 }
+ul{
+  list-style: none;
+}
 ul li{
   margin: 5px 0px;
 }
