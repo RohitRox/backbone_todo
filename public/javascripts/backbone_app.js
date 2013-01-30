@@ -6,12 +6,12 @@ $(document).ready(function(){
 
   // Model
   var Todo = Backbone.Model.extend({
-    url: '/tasks',
+    urlRoot: '/tasks',
     defaults: function() {
       return {
         title: "untitled",
         status: "Not-Completed",
-        priority: 'medium',
+        priority: 5,
         category: 'untitled',
         created_at: this.utc_date()
       };
@@ -24,6 +24,10 @@ $(document).ready(function(){
     utc_date: function(){
       var now = new Date();
       return now.toUTCString();
+    },
+    toggleDone: function(){
+      var stat = this.get('status') === "Completed" ? "Not-Completed" : "Completed";
+      this.set({ status: stat });
     }
 
   });
@@ -63,6 +67,19 @@ $(document).ready(function(){
       this.$el.html(this.template(this.model.toJSON()));
       this.$el.toggleClass('done', this.model.get('status')==="Completed");
       return this;
+    },
+    events: {
+      "click .mark_as_done":    "toggleDone",
+      "click .todo_delete": "delete"
+    },
+    toggleDone: function(){
+      this.model.toggleDone();
+      this.model.save();
+      this.render();
+    },
+    delete: function(){
+      this.model.destroy();
+      this.remove();
     }
 
   });

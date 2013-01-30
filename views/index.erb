@@ -6,8 +6,9 @@
   <span>Priority: {{ priority }}</span>
   </div>
   <div class="actions right">
-    <a class="tiny button" href="#">Show</a>
-    <a class="tiny button" href="#">Delete</a>
+    <a class="mark_as_done" class="tiny button" href="#">{{ status === "Completed" ? "Undone" : "Done" }}</a>
+    <a class="todo_show"class="tiny button" href="#">Show</a>
+    <a class="todo_delete" class="tiny button" href="#">Delete</a>
   </div>
 </script>
 <script type="text/template" id="cats">
@@ -30,9 +31,16 @@
   <label for="c41_priority">Priority</label>
   <div class="bbf-editor">
     <select id="c41_priority" name="priority">
-      <option>low</option>
-      <option>medium</option>
-      <option>urgent</option>
+      <option>1</option>
+      <option>2</option>
+      <option>3</option>
+      <option>4</option>
+      <option>5</option>
+      <option>6</option>
+      <option>7</option>
+      <option>8</option>
+      <option>9</option>
+      <option>10</option>
     </select>
   </div>
 </li>
@@ -82,7 +90,14 @@
     <div class="four columns">
       <p>
         <a href="#" class="button" id="new_todo">New Todo</a>
+        <br /><br />
+        <% if params[:private_url] %>
+        BOARD: <%= params[:private_url] %>
+        <% else %>
+        <a href="/boards" class="button" id="todo_board">Create Private Board</a>
+        <% end %>
       </p>
+      <h4>Users</h4>
       <h4>Categories <a href="#" id="show_all_cats">(show all)</a></h4>
       <ul id="categories" class="cats">
         <li>
