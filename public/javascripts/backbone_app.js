@@ -6,7 +6,7 @@ $(document).ready(function(){
 
   // Model
   var Todo = Backbone.Model.extend({
-    urlRoot: '/tasks',
+    urlRoot: 'tasks',
     defaults: function() {
       return {
         title: "untitled",

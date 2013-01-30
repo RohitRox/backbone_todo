@@ -1,20 +1,21 @@
 # encoding: utf-8
 require 'rubygems'
 require 'sinatra'
+require 'sinatra/resources'
 require 'json'
 require 'data_mapper'
 require 'pry'
-require 'SecureRandom'
+require 'securerandom'
 
 
-class Board 
+class Board
   include DataMapper::Resource
   property :id, Serial
   property :name, String
   property :private_url, String
 
   has n, :tasks
-  
+
 end
 
 class Task
@@ -41,7 +42,7 @@ configure do
 end
 
 class App < Sinatra::Base
-
+  register Sinatra::Resources
   get '/' do
     @tasks = Task.public.to_a
     erb :index
@@ -100,6 +101,13 @@ class App < Sinatra::Base
     board = Board.create({ :private_url => SecureRandom.uuid[0..7] })
     redirect "/boards/#{board.private_url}"
   end
+
+  resource "boards/:board_id" do
+    post "tasks" do
+      binding.pry
+    end
+  end
+
 
   private
 
