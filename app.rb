@@ -49,9 +49,9 @@ class App < Sinatra::Base
   end
 
   get '/boards/:private_url' do
-    board = Board.all(:private_url => params[:private_url]).first
-    if board
-      @tasks = board.tasks
+    @board = Board.all(:private_url => params[:private_url]).first
+    if @board
+      @tasks = @board.tasks
       erb :index
     else
       erb :not_found
@@ -60,24 +60,14 @@ class App < Sinatra::Base
 
 
   get '/tasks' do
-    if is_on_board?
-      tasks = Board.all(:private_url => params[:private_url]).first.tasks.all.to_a
-    else
-      tasks = Task.public.to_a
-    end
+    tasks = Task.public.to_a
     content_type :json
       tasks.to_json
   end
 
   post '/tasks' do
-    binding.pry
     params = JSON.parse(request.body.read)
-    if is_on_board?
-      board = Board.all(:private_url => params[:private_url]).first
-      task = Task.create(params.merge!(:board => board))
-    else
-      task = Task.create(params)
-    end
+    task = Task.create(params)
     content_type :json
       task.to_json
   end
@@ -102,17 +92,34 @@ class App < Sinatra::Base
     redirect "/boards/#{board.private_url}"
   end
 
-  resource "boards/:board_id" do
+  resource "boards/:private_url" do
     post "tasks" do
-      binding.pry
+      board = Board.all(:private_url => params["private_url"]).first
+      post_params = JSON.parse(request.body.read)
+      post_params.merge!(:board => board)
+      task = Task.create( post_params )
+      content_type :json
+        task.to_json
     end
-  end
-
-
-  private
-
-  def is_on_board?
-    params[:private_url] ? true : false
+    get "tasks" do
+      board = Board.all(:private_url => params["private_url"]).first
+      tasks = board.tasks
+      content_type :json
+        tasks.to_json
+    end
+    put 'tasks/:task_id' do
+      params = JSON.parse(request.body.read)
+      task = Task.get(params['id'])
+      task.update(params)
+      content_type :json
+        task.to_json
+    end
+    delete 'tasks/:task_id' do
+      task = Task.get(params['task_id'])
+      task.destroy
+      content_type :json
+        task.to_json
+    end
   end
 
 end

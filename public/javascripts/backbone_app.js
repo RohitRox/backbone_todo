@@ -6,7 +6,7 @@ $(document).ready(function(){
 
   // Model
   var Todo = Backbone.Model.extend({
-    urlRoot: 'tasks',
+    urlRoot: function(){ return boot_board ? "/boards/"+boot_board.private_url+"/tasks" : "/tasks"; },
     defaults: function() {
       return {
         title: "untitled",
@@ -19,6 +19,9 @@ $(document).ready(function(){
     initialize: function() {
       if (!this.get("title")) {
         this.set({"title": this.defaults().title});
+      }
+      if(boot_board){
+        this.board = boot_board;
       }
     },
     utc_date: function(){
@@ -38,7 +41,7 @@ $(document).ready(function(){
 
     model: Todo,
 
-    url: "/tasks",
+    url: function(){ return boot_board ? "/boards/"+boot_board.private_url+"/tasks" : "/tasks"; },
 
     done: function() {
       return this.filter(function(todo){ return todo.get('status')==="Completed"; });
@@ -70,14 +73,14 @@ $(document).ready(function(){
     },
     events: {
       "click .mark_as_done":    "toggleDone",
-      "click .todo_delete": "delete"
+      "click .todo_delete": "del"
     },
     toggleDone: function(){
       this.model.toggleDone();
       this.model.save();
       this.render();
     },
-    delete: function(){
+    del: function(){
       this.model.destroy();
       this.remove();
     }
@@ -90,6 +93,7 @@ $(document).ready(function(){
       this.$el.html(form);
       var coll = todos_view.collection;
       var categories = coll.getCategories();
+      categories = _.union(categories, ["Personal", "Office", "Home", "College"]);
       var sel = $(this.$el).find('#c41_category').empty();
       _.each(categories,function(cat){
         sel.append('<option>'+cat+'</option>');
@@ -164,6 +168,7 @@ $(document).ready(function(){
       _.each(this.collection.models, function(item){
         that.renderTodo(item);
       },this);
+      this.render_categories();
     },
     renderTodo: function(item){
       var todo_view = new TodoView({
